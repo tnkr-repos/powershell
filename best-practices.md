@@ -1,0 +1,61 @@
+# BEST PRACTICES IN POWERSHELL
+
+- General:
+  - Read the help files
+  - Set up a schedule to update help on a regular basis
+  - Set your script execution policy to `RemoteSigned` (at the least)
+  - Use the pipeline - PowerShell is designed for pipeline usage. It's helpful to break long commands into several steps, each still using the pipeline - Not all needs to be done on a single comand
+  - Give meaningful variable names
+  - Avoid variables with spaces or special characters in their names
+  - Never set `$ErrorActionPreference` (or `$VerboseActionPreference` or any other preference variable) globally in the shell or in a script or function. Instead use parameters `-ErrorAction`, `-Verbose` to set the preference
+  - Avoid enumerating collections (using `ForEach-Object` or `ForEach()`) unless there is no other way to accomplish your task
+  - Use single quotes unless you explicitly need the variable-replacement and expression-evaluation capabilities of double quotes
+  - String substitution (or multiplication) is much easier than string concatenation
+  - Use the built-in numeric constants - PowerShell understands KB, MB, GB, TB, or PB
+  - Avoid using native .NET classes and methods unless there is no cmdlet alternative
+  - Filter early and format late
+
+- Scripting:
+  - Give variables a type especially if they are parameters - `[string]$logFile`
+  - Avoid using variables that haven't been given a value within the current scope
+  - Give functions and workflows cmdlet-style, verb-noun names such as `Get-DiskInfo`
+  - When a script performs a given task, rather than having it acting as a container for several functions, give the script a cmdlet-style verb-noun name
+  - When naming functions and scripts with a verb-noun style, apply a 2-3 character prefix to the noun (related to the company), or apply a prefix when loading the module
+  - If you create private (nonexported) variables in a script module, give those variables distinct names (use `$_private` or `$_counter`)
+  - When defining script or function parameters, use parameter names that correspond to native cmdlet parameters that have a similar purpose
+  - Avoid using `Write-Host` unless your sole purpose is to produce output that will only ever need to be seen onscreen
+  - Use `[CmdletBinding()]` in your scripts and functions to give easy access to verbose messages, debugging, etc
+  - If your script and function will change the system, add support for `-WhatIf` and `-Confirm`
+  - Use `Write-Verbose` to produce _progress information_ such as messages telling what a script or function is about to attempt
+  - Use `Write-Debug` to produce messages intended to assist with the debugging process
+  - Remember that `Write-Warning` exists for those times when you need to output informational messages to screen
+  - Scripts and functions should produce one, and only one, kind of output in the form of an object
+  - Always define help for scripts and functions even if it's just comment-based help
+  - Avoid changing aliases, variables, and other scoped elements of a scope other than the current one
+  - Break tasks into distinct, small units of functionality and implement each as a function, and a script should call the functions in the proper sequence
+  - Sign code examples that you plan to share with the public
+  - Avoid using Hungarian notation for variable names (avoid `$strName` or `$intCounter`)
+  - Indent the content of a script block
+  - Consider using `Write-Verbose`, `Write-Debug`, to provide inline documentation for scripts and functions, rather than using inline comments for that purpose
+  - In a script, function, or workflow, avoid aliases and truncated parameter names
+  - Avoid using the backtick character at the end of a line so that you can continue that command on the next physical line. Break lines at natural PowerShell points such as after `( { , ; |`
+  - Remember `Test-Path` and use it to test for file or folder existence or any provider path
+  - `Try...Catch...Finally` should be used anywhere that exceptions could cause problems in your processing
+  - Don't use `Trap` - `Try...Catch` is easier and better
+  - Avoid using `Return` keyword. Instead, think about writing objects to the pipeline
+  
+- Enterprise:
+  - Use Group Policy to configure and enforce PowerShell Remoting and script execution
+  - Use a Remoting or CIM session if you are accessing a remote machine more than once
+  - Use PowerShell jobs for long-running tasks
+  - Use PowerShell workflows where you need the ability to interrupt or restart scripts or use parallel execution
+  - Restrict access to your production scripts to just who need it
+  - Store scripts in a source control solution so that you have both a backup and a way to roll back to a previous version if you mess something up
+  - Use `Test-Connection` to test the availability of a remote machine before attempting a lot of processing
+  - Make sure PowerShell remoting is enabled on your servers
+  - Credentials should be created before being used - don't create them in your command, especially if you need them more than once
+  - Use `WSMan` rather than `DCOM` for `CIM` sessions if at all possible
+  - Consider an enterprise execution policy of `AllSigned` and use a code-signing certificate from your Active Directory PKI
+  - Create shared scripts that define common functions, aliases, and variables you might need for your team. Store these scripts centrally, such as on a UNC, and then dot-source them in you profile script
+  - Use `DSC` (Desired State Configuration) to create and maintain your server configurations. Use a Pull server to minimize manual intervention
+  - Test everything in a non-production environment
